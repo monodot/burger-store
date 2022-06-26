@@ -1,10 +1,22 @@
 services:
-  web:
+  app:
     build:
       context: .
       labels:
         com.tutorialworks.description: "Burger Store application"
+    environment:
+      - JAVA_OPTS=-javaagent:/app/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=burger-store
+      # Disable metrics for now - we'll just export traces only
+      - OTLP_METRICS_EXPORTER=none
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8083:8080"
 
-
+  collector:
+    image: docker.io/otel/opentelemetry-collector:0.54.0
+    command: "--config /etc/otel-config.yaml"
+    environment:
+      - TEMPO_ENDPOINT=${TEMPO_ENDPOINT}
+      - TEMPO_AUTH_STRING=${TEMPO_AUTH_STRING}
+    volumes:
+      - ./config/otel-config.yml:/etc/otel-config.yaml:z
