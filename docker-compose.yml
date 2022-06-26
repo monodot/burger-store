@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      context: .
+      labels:
+        com.tutorialworks.description: "Burger Store application"
+    ports:
+      - "8080:8080"
+
+
